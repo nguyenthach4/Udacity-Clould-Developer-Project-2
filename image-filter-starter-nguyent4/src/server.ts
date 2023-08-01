@@ -1,11 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { Router, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
 (async () => {
 
-  // Init the Express application
+  // Init the Express applicationF
   const app = express();
 
   // Set the network port
@@ -34,7 +34,7 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
   app.get('/filteredimage', async (req: Request, res: Response) => {
 
-    const image_url = req.query.image_url.toString();
+    let image_url = req.query.image_url.toString();
     if (!image_url) {
       res.status(400).send('image url is required');
     }
@@ -42,7 +42,12 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     const filteredpath = await filterImageFromURL(image_url);
 
     res.status(200).sendFile(filteredpath, () => {
-      deleteLocalFiles([filteredpath]);
+      const promiseDeleteLocalFiles = new Promise((resolve, reject) => {
+        resolve('Delete file is success!');
+      });
+      promiseDeleteLocalFiles.then((value) => {
+        deleteLocalFiles([filteredpath]);
+      });
     });
   });
   // Root Endpoint
