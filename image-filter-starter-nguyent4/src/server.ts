@@ -38,7 +38,11 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     if (!image_url) {
       res.status(400).send('image url is required');
     }
-
+    
+    var regex = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    if (!regex.test(image_url)) {
+      res.status(400).send('image url is invalid');
+    }
     const filteredpath = await filterImageFromURL(image_url);
 
     res.status(200).sendFile(filteredpath, () => {
