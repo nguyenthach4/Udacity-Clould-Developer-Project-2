@@ -1,13 +1,12 @@
-//import express from 'express';
-const express = require('express')
-import bodyParser from 'body-parser';
+const express = require('express');
+const bodyParser = require('body-parser');
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
+import {validatior, httpStatus, messageResponse} from './util/app_contants';
 
 (async () => {
 
   // Init the Express applicationF
   const app = express();
-
   // Set the network port
   const port = process.env.PORT || 8082;
 
@@ -32,27 +31,19 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
   //! END @TODO1
 
-  app.get('/filteredimage', async (req: any, res: any) => {
-
-    let image_url = req.query.image_url.toString();
+  app.get("/filteredimage", async (req: any, res: any) => {
+    const image_url = req.query.image_url;
     if (!image_url) {
-      res.status(400).send('image url is required');
+      res.status(httpStatus.BAD_REQUEST).send(messageResponse.IMAGE_URL_IS_REQUIRED);
     }
-    
-    var regex = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-    if (!regex.test(image_url)) {
-      res.status(400).send('image url is invalid');
-    }
-    const filteredpath = await filterImageFromURL(image_url);
-
-    res.status(200).sendFile(filteredpath, () => {
-      const promiseDeleteLocalFiles = new Promise((resolve, reject) => {
-        resolve('Delete file is success!');
-      });
-      promiseDeleteLocalFiles.then((value) => {
+    else if (!validatior.REGEX.test(image_url)) {
+      res.status(httpStatus.BAD_REQUEST).send(messageResponse.IMAGE_URL_IS_INVALID);
+    } else {
+      const filteredpath = await filterImageFromURL(image_url.toString());
+      res.status(httpStatus.SUCCESS).sendFile(filteredpath, () => {
         deleteLocalFiles([filteredpath]);
       });
-    });
+    }
   });
   // Root Endpoint
   // Displays a simple message to the user
